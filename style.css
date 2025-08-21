@@ -1,99 +1,302 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background: #f4f4f4;
-    margin: 0;
-    padding: 20px;
+  background-color: #f5f7fa;
+  color: #333;
+  line-height: 1.6;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .container {
-    max-width: 600px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 800px;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
 }
 
-.custom-btn {
-    background: #e63946;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: inline-block;
-    margin-bottom: 15px;
-    font-size: 16px;
-    font-weight: bold;
+h1 {
+  color: #1d3557;
+  margin-bottom: 10px;
+  font-size: 28px;
+  text-align: center;
 }
 
-.custom-btn:hover {
-    background: #d62828;
+p {
+  color: #457b9d;
+  margin-bottom: 25px;
+  text-align: center;
 }
 
-.merge-btn {
-    background: #06d6a0;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 10px;
+.divider {
+  height: 1px;
+  background: #e9ecef;
+  margin: 25px 0;
 }
 
-.merge-btn:hover {
-    background: #05b384;
+.btn {
+  display: inline-block;
+  padding: 14px 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: none;
+  width: 100%;
+  margin-bottom: 15px;
 }
 
-.reload-btn {
-    background: #457b9d;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 10px;
+.btn-primary {
+  background: #e63946;
+  color: white;
 }
 
-.reload-btn:hover {
-    background: #1d3557;
+.btn-primary:hover {
+  background: #d62828;
+  transform: translateY(-2px);
+}
+
+.btn-success {
+  background: #06d6a0;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #05b384;
+  transform: translateY(-2px);
+}
+
+.btn-info {
+  background: #457b9d;
+  color: white;
+}
+
+.btn-info:hover {
+  background: #1d3557;
+  transform: translateY(-2px);
+}
+
+.btn-link {
+  background: transparent;
+  color: #1d3557;
+  text-decoration: none;
+  padding: 10px 0;
+  width: auto;
+  display: inline-block;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+  transform: none;
+  background: transparent;
 }
 
 #fileList {
-    text-align: left;
-    margin-top: 20px;
+  text-align: left;
+  margin-top: 20px;
 }
 
 .file-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #f8f9fa;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 12px 15px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border-left: 4px solid #457b9d;
+  gap: 10px;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.file-actions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
 }
 
 .file-item button {
-    background: #ff595e;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
+  background: #ff595e;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 .file-item button:hover {
-    background: #d62828;
+  background: #d62828;
 }
 
-@media (max-width: 600px) {
-    .custom-btn, .merge-btn, .reload-btn {
-        width: 100%;
-        font-size: 14px;
-    }
+.file-item button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.footer {
+  margin-top: 30px;
+  text-align: center;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  .btn {
+    width: auto;
+    margin-right: 10px;
+    margin-bottom: 0;
+  }
+
+  .button-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  h1 {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 767px) {
+  .container {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .btn {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+
+  .file-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .file-info {
+    width: 100%;
+  }
+
+  .file-actions {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .container {
+    padding: 15px;
+    border-radius: 8px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .btn {
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+
+  .file-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    gap: 5px;
+  }
+
+  .file-item button {
+    width: 100%;
+    padding: 8px 5px;
+    font-size: 12px;
+  }
+}
+
+.hidden {
+  display: none;
+}
+
+.visible {
+  display: block;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #457b9d;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.drop-area {
+  border: 2px dashed #457b9d;
+  border-radius: 8px;
+  padding: 25px;
+  text-align: center;
+  margin: 20px 0;
+  background-color: rgba(69, 123, 157, 0.05);
+  transition: all 0.3s ease;
+}
+
+.drop-area.highlight {
+  background-color: rgba(69, 123, 157, 0.15);
+  border-color: #1d3557;
+}
+
+.drop-area p {
+  margin-bottom: 0;
+  color: #6c757d;
+}
+
+.drop-area i {
+  font-size: 40px;
+  color: #457b9d;
+  margin-bottom: 10px;
 }
