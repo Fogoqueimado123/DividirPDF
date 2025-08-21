@@ -39,19 +39,29 @@ function handleFiles(files) {
     (file) => file.type === "application/pdf"
   );
 
-  newFiles.forEach((file) => {
+  if (newFiles.length > 0) {
+    const file = newFiles[0];
     if (!selectedFiles.some((f) => f.name === file.name)) {
-      selectedFiles.push(file);
+      selectedFiles = [file];
+      renderFileList();
+      document.getElementById("pageRangeContainer").classList.remove("hidden");
+      document.getElementById("pageRangeContainer").classList.add("visible");
     }
-  });
-
-  renderFileList();
+  }
 }
 
 document
   .getElementById("pdfInput")
   .addEventListener("change", function (event) {
-    handleFiles(event.target.files);
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!selectedFiles.some((f) => f.name === file.name)) {
+      selectedFiles = [file]; // Permite apenas um arquivo
+      renderFileList();
+      document.getElementById("pageRangeContainer").classList.remove("hidden");
+      document.getElementById("pageRangeContainer").classList.add("visible");
+    }
   });
 
 function renderFileList() {
@@ -69,26 +79,16 @@ function renderFileList() {
     div.classList.add("file-item");
 
     div.innerHTML = `
-          <div class="file-info">
-            <i class="fas fa-file-pdf" style="color: #e63946; margin-right: 10px;"></i>
-            <span class="file-name" title="${file.name}">${file.name}</span>
-          </div>
-          <div class="file-actions">
-            <button onclick="moveUp(${index})" title="Mover para cima" ${
-      index === 0 ? "disabled" : ""
-    }>
-              <i class="fas fa-arrow-up"></i>
-            </button>
-            <button onclick="moveDown(${index})" title="Mover para baixo" ${
-      index === selectedFiles.length - 1 ? "disabled" : ""
-    }>
-              <i class="fas fa-arrow-down"></i>
-            </button>
-            <button onclick="removeFile(${index})" title="Remover arquivo">
-              <i class="fas fa-times"></i> Remover
-            </button>
-          </div>
-        `;
+                    <div class="file-info">
+                        <i class="fas fa-file-pdf" style="color: #e63946; margin-right: 10px;"></i>
+                        <span class="file-name" title="${file.name}">${file.name}</span>
+                    </div>
+                    <div class="file-actions">
+                        <button onclick="removeFile(${index})" title="Remover arquivo">
+                            <i class="fas fa-times"></i> Remover
+                        </button>
+                    </div>
+                `;
 
     fileList.appendChild(div);
   });
@@ -97,74 +97,118 @@ function renderFileList() {
 function removeFile(index) {
   selectedFiles.splice(index, 1);
   renderFileList();
-}
-
-function moveUp(index) {
-  if (index > 0) {
-    const temp = selectedFiles[index];
-    selectedFiles[index] = selectedFiles[index - 1];
-    selectedFiles[index - 1] = temp;
-    renderFileList();
+  if (selectedFiles.length === 0) {
+    document.getElementById("pageRangeContainer").classList.remove("visible");
+    document.getElementById("pageRangeContainer").classList.add("hidden");
   }
 }
 
-function moveDown(index) {
-  if (index < selectedFiles.length - 1) {
-    const temp = selectedFiles[index];
-    selectedFiles[index] = selectedFiles[index + 1];
-    selectedFiles[index + 1] = temp;
-    renderFileList();
-  }
-}
-
-document.getElementById("mergeBtn").addEventListener("click", async () => {
-  if (selectedFiles.length < 2) {
-    alert("Selecione pelo menos 2 PDFs para juntar.");
+document.getElementById("splitBtn").addEventListener("click", async () => {
+  if (selectedFiles.length === 0) {
+    alert("Selecione um arquivo PDF para dividir.");
     return;
   }
 
-  const mergeBtn = document.getElementById("mergeBtn");
-  const originalText = mergeBtn.innerHTML;
-  mergeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
-  mergeBtn.disabled = true;
+  const pageRangeInput = document.getElementById("pageRange").value.trim();
+  if (!pageRangeInput) {
+    alert("Digite um intervalo de páginas.");
+    return;
+  }
+
+  const splitBtn = document.getElementById("splitBtn");
+  const originalText = splitBtn.innerHTML;
+  splitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+  splitBtn.disabled = true;
 
   try {
-    const mergedPdf = await PDFLib.PDFDocument.create();
+    const file = selectedFiles[0];
+    const arrayBuffer = await file.arrayBuffer();
 
-    for (const file of selectedFiles) {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
-      const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-      copiedPages.forEach((page) => mergedPdf.addPage(page));
+    const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+    const pageCount = pdfDoc.getPageCount();
+
+    const pageNumbers = parsePageRange(pageRangeInput, pageCount);
+
+    if (pageNumbers.length === 0) {
+      alert("Nenhuma página válida foi especificada.");
+      splitBtn.innerHTML = originalText;
+      splitBtn.disabled = false;
+      return;
     }
 
-    const mergedPdfBytes = await mergedPdf.save();
-    const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
+    const newPdfDoc = await PDFLib.PDFDocument.create();
+
+    for (const pageNumber of pageNumbers) {
+      const [copiedPage] = await newPdfDoc.copyPages(pdfDoc, [pageNumber - 1]);
+      newPdfDoc.addPage(copiedPage);
+    }
+
+    const pdfBytes = await newPdfDoc.save();
+
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
     const url = URL.createObjectURL(blob);
+
     const a = document.createElement("a");
     a.href = url;
-    a.download = "PDF-Mesclado.pdf";
+    a.download = "documento_dividido.pdf";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
 
     setTimeout(() => URL.revokeObjectURL(url), 100);
 
+    alert("PDF dividido e baixado com sucesso!");
     document.getElementById("reloadBtn").classList.remove("hidden");
     document.getElementById("reloadBtn").classList.add("visible");
   } catch (error) {
     console.error("Erro ao processar o PDF:", error);
     alert(
-      "Ocorreu um erro ao processar os PDFs. Verifique se os arquivos são válidos."
+      "Ocorreu um erro ao processar o PDF. Verifique se o arquivo é válido."
     );
   } finally {
-    mergeBtn.innerHTML = originalText;
-    mergeBtn.disabled = false;
+    splitBtn.innerHTML = originalText;
+    splitBtn.disabled = false;
   }
 });
 
 document.getElementById("reloadBtn").addEventListener("click", () => {
   location.reload();
+});
+
+function parsePageRange(range, totalPages) {
+  const pages = new Set();
+
+  range.split(",").forEach((part) => {
+    part = part.trim();
+    if (!part) return;
+
+    if (part.includes("-")) {
+      const [start, end] = part.split("-").map((num) => parseInt(num.trim()));
+
+      if (isNaN(start)) return;
+
+      const finalEnd = isNaN(end) ? start : Math.min(end, totalPages);
+
+      for (let i = Math.max(1, start); i <= finalEnd; i++) {
+        if (i <= totalPages) pages.add(i);
+      }
+    } else {
+      const pageNum = parseInt(part);
+      if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+        pages.add(pageNum);
+      }
+    }
+  });
+
+  return Array.from(pages).sort((a, b) => a - b);
+}
+
+document.getElementById("pageRange").addEventListener("focus", function () {
+  this.placeholder = "Ex: 1-3,5,7-10";
+});
+
+document.getElementById("pageRange").addEventListener("blur", function () {
+  this.placeholder = "Digite o intervalo de páginas";
 });
 
 renderFileList();

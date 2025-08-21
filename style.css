@@ -155,9 +155,29 @@ p {
   background: #d62828;
 }
 
-.file-item button:disabled {
-  background: #cccccc;
-  cursor: not-allowed;
+.input-group {
+  margin: 20px 0;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #1d3557;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #457b9d;
+  box-shadow: 0 0 0 3px rgba(69, 123, 157, 0.2);
 }
 
 .footer {
@@ -236,7 +256,7 @@ p {
 
   .file-actions {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr;
     width: 100%;
     gap: 5px;
   }
@@ -245,6 +265,10 @@ p {
     width: 100%;
     padding: 8px 5px;
     font-size: 12px;
+  }
+
+  .input-group input {
+    padding: 10px 12px;
   }
 }
 
