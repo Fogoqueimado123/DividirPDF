@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dividir PDFs</title>
     <link
+      rel="shortcut icon"
+      href="Logo Soluções Técnicas.png"
+      type="image/x-icon"
+    />
+    <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
@@ -63,7 +68,7 @@
         border-radius: 8px;
         cursor: pointer;
         font-weight: 600;
-        font-size: 16px;
+        font-size: 20px;
         text-align: center;
         transition: all 0.3s ease;
         border: none;
@@ -264,7 +269,7 @@
 
         .btn {
           padding: 14px 16px;
-          font-size: 14px;
+          font-size: 20px;
         }
 
         .file-actions {
@@ -337,6 +342,32 @@
         color: #457b9d;
         margin-bottom: 10px;
       }
+
+      .message {
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 500;
+      }
+
+      .message.success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .message.error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .message.info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
     </style>
   </head>
   <body>
@@ -378,6 +409,8 @@
           </button>
         </div>
       </div>
+
+      <div id="message" class="message hidden"></div>
 
       <div class="divider"></div>
 
@@ -459,7 +492,7 @@
           if (!file) return;
 
           if (!selectedFiles.some((f) => f.name === file.name)) {
-            selectedFiles = [file]; 
+            selectedFiles = [file];
             renderFileList();
             document
               .getElementById("pageRangeContainer")
@@ -511,19 +544,35 @@
         }
       }
 
+      function showMessage(text, type = "info") {
+        const messageElement = document.getElementById("message");
+        messageElement.textContent = text;
+        messageElement.className = "message " + type;
+        messageElement.classList.remove("hidden");
+        messageElement.classList.add("visible");
+
+        if (type === "success") {
+          setTimeout(() => {
+            messageElement.classList.remove("visible");
+            messageElement.classList.add("hidden");
+          }, 5000);
+        }
+      }
+
       document
         .getElementById("splitBtn")
         .addEventListener("click", async () => {
           if (selectedFiles.length === 0) {
-            alert("Selecione um arquivo PDF para dividir.");
+            showMessage("Selecione um arquivo PDF para dividir.", "error");
             return;
           }
 
           const pageRangeInput = document
             .getElementById("pageRange")
             .value.trim();
+
           if (!pageRangeInput) {
-            alert("Digite um intervalo de páginas.");
+            showMessage("Digite um intervalo de páginas.", "error");
             return;
           }
 
@@ -532,6 +581,8 @@
           splitBtn.innerHTML =
             '<i class="fas fa-spinner fa-spin"></i> Processando...';
           splitBtn.disabled = true;
+
+          document.getElementById("message").classList.add("hidden");
 
           try {
             const file = selectedFiles[0];
@@ -543,7 +594,7 @@
             const pageNumbers = parsePageRange(pageRangeInput, pageCount);
 
             if (pageNumbers.length === 0) {
-              alert("Nenhuma página válida foi especificada.");
+              showMessage("Nenhuma página válida foi especificada.", "error");
               splitBtn.innerHTML = originalText;
               splitBtn.disabled = false;
               return;
@@ -572,13 +623,14 @@
 
             setTimeout(() => URL.revokeObjectURL(url), 100);
 
-            alert("PDF dividido e baixado com sucesso!");
+            showMessage("PDF dividido e baixado com sucesso!", "success");
             document.getElementById("reloadBtn").classList.remove("hidden");
             document.getElementById("reloadBtn").classList.add("visible");
           } catch (error) {
             console.error("Erro ao processar o PDF:", error);
-            alert(
-              "Ocorreu um erro ao processar o PDF. Verifique se o arquivo é válido."
+            showMessage(
+              "Ocorreu um erro ao processar o PDF. Verifique se o arquivo é válido.",
+              "error"
             );
           } finally {
             splitBtn.innerHTML = originalText;

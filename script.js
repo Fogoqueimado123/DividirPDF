@@ -57,7 +57,7 @@ document
     if (!file) return;
 
     if (!selectedFiles.some((f) => f.name === file.name)) {
-      selectedFiles = [file]; // Permite apenas um arquivo
+      selectedFiles = [file];
       renderFileList();
       document.getElementById("pageRangeContainer").classList.remove("hidden");
       document.getElementById("pageRangeContainer").classList.add("visible");
@@ -103,15 +103,32 @@ function removeFile(index) {
   }
 }
 
+function showMessage(text, type = "info") {
+  const messageElement = document.getElementById("message");
+  messageElement.textContent = text;
+  messageElement.className = "message " + type;
+  messageElement.classList.remove("hidden");
+  messageElement.classList.add("visible");
+
+  // Auto-hide success messages after 5 seconds
+  if (type === "success") {
+    setTimeout(() => {
+      messageElement.classList.remove("visible");
+      messageElement.classList.add("hidden");
+    }, 5000);
+  }
+}
+
 document.getElementById("splitBtn").addEventListener("click", async () => {
   if (selectedFiles.length === 0) {
-    alert("Selecione um arquivo PDF para dividir.");
+    showMessage("Selecione um arquivo PDF para dividir.", "error");
     return;
   }
 
   const pageRangeInput = document.getElementById("pageRange").value.trim();
+
   if (!pageRangeInput) {
-    alert("Digite um intervalo de páginas.");
+    showMessage("Digite um intervalo de páginas.", "error");
     return;
   }
 
@@ -119,6 +136,9 @@ document.getElementById("splitBtn").addEventListener("click", async () => {
   const originalText = splitBtn.innerHTML;
   splitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
   splitBtn.disabled = true;
+
+  // Hide any existing messages while processing
+  document.getElementById("message").classList.add("hidden");
 
   try {
     const file = selectedFiles[0];
@@ -130,7 +150,7 @@ document.getElementById("splitBtn").addEventListener("click", async () => {
     const pageNumbers = parsePageRange(pageRangeInput, pageCount);
 
     if (pageNumbers.length === 0) {
-      alert("Nenhuma página válida foi especificada.");
+      showMessage("Nenhuma página válida foi especificada.", "error");
       splitBtn.innerHTML = originalText;
       splitBtn.disabled = false;
       return;
@@ -157,13 +177,14 @@ document.getElementById("splitBtn").addEventListener("click", async () => {
 
     setTimeout(() => URL.revokeObjectURL(url), 100);
 
-    alert("PDF dividido e baixado com sucesso!");
+    showMessage("PDF dividido e baixado com sucesso!", "success");
     document.getElementById("reloadBtn").classList.remove("hidden");
     document.getElementById("reloadBtn").classList.add("visible");
   } catch (error) {
     console.error("Erro ao processar o PDF:", error);
-    alert(
-      "Ocorreu um erro ao processar o PDF. Verifique se o arquivo é válido."
+    showMessage(
+      "Ocorreu um erro ao processar o PDF. Verifique se o arquivo é válido.",
+      "error"
     );
   } finally {
     splitBtn.innerHTML = originalText;
